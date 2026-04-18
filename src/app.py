@@ -20,6 +20,8 @@ app.mount("/static", StaticFiles(directory=os.path.join(Path(__file__).parent,
           "static")), name="static")
 
 # In-memory activity database
+
+# In-memory activity database
 activities = {
     "Chess Club": {
         "description": "Learn strategies and compete in chess tournaments",
@@ -38,8 +40,7 @@ activities = {
         "schedule": "Mondays, Wednesdays, Fridays, 2:00 PM - 3:00 PM",
         "max_participants": 30,
         "participants": ["john@mergington.edu", "olivia@mergington.edu"]
-    }
-    ,
+    },
     # Sports related activities
     "Soccer Team": {
         "description": "Join the school soccer team and compete in inter-school matches",
@@ -80,6 +81,7 @@ activities = {
         "participants": ["logan@mergington.edu", "harper@mergington.edu"]
     }
 }
+app.state.activities = activities
 
 
 @app.get("/")
@@ -89,13 +91,14 @@ def root():
 
 @app.get("/activities")
 def get_activities():
-    return activities
+    return app.state.activities
 
 
 
 @app.post("/activities/{activity_name}/signup")
 def signup_for_activity(activity_name: str, email: str):
     """Sign up a student for an activity"""
+    activities = app.state.activities
     # Validate activity exists
     if activity_name not in activities:
         raise HTTPException(status_code=404, detail="Activity not found")
@@ -116,6 +119,7 @@ def signup_for_activity(activity_name: str, email: str):
 @app.delete("/activities/{activity_name}/signup")
 def unregister_for_activity(activity_name: str, email: str):
     """Unregister a student from an activity"""
+    activities = app.state.activities
     if activity_name not in activities:
         raise HTTPException(status_code=404, detail="Activity not found")
     activity = activities[activity_name]
